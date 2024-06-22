@@ -7,5 +7,6 @@ class Student(models.Model):
     roll = models.IntegerField(primary_key=True)
     address = models.TextField()
     
-
+    def __str__(self):
+        return self.name
     
