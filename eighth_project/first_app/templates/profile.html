@@ -4,5 +4,7 @@
 <h1>Welcome to profile</h1>
 <h1>Hello {{user}}</h1>
 
-
+<a href="{% url 'pass_change' %}">change password with old password</a>
+<br>
+<a href="{% url 'pass_change2' %}">change password. Don't remember old password?</a>
 {% endblock %}
