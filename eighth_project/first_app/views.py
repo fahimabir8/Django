@@ -47,10 +47,23 @@ def user_login(request):
 
 
 def profile(request):
-    if request.user.is_authenticated: 
-        return render(request, './profile.html', {'user': request.user})
+    if  request.user.is_authenticated:
+        if request.method == 'POST':
+            form = forms.ChangeUserData(request.POST, instance=request.user)
+            if form.is_valid():
+                messages.success(request, 'Account updated successfully')
+                form.save()
+                print(form.cleaned_data)
+                
+        else:
+            form = forms.ChangeUserData(instance=request.user)
+            
+        return render(request, './profile.html', {'form' : form})
+    
     else:
-        return redirect('login')
+        return redirect('signuppage')
+
+
 
 def user_logout(request):
     logout(request)
@@ -89,6 +102,4 @@ def pass_change2(request):
         return render(request, './passchange.html',{'form':form})
     else:
         return redirect('login')
-
-                
 
