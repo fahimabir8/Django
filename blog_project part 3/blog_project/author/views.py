@@ -5,6 +5,9 @@ from django.contrib.auth import authenticate, login,update_session_auth_hash,log
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from posts.models import Post
+from django.contrib.auth.views import LoginView, LogoutView
+from django.urls import reverse_lazy
+
 # Create your views here.
 
 # def add_author(request):
@@ -30,25 +33,46 @@ def register(request):
         register_form = forms.RegistrationForm()
     return render(request, 'register.html', {'form' : register_form , 'type':'Register'})
 
-def user_login(request):
-    if request.method == 'POST':
-        form = AuthenticationForm(request, request.POST)
-        if form.is_valid():
-            user_name = form.cleaned_data['username']
-            user_pass = form.cleaned_data['password']
-            user = authenticate(username=user_name, password=user_pass)
-            if user is not None:
-                messages.success(request,'Logged in Successfully')
-                login(request, user)
-                return redirect('profile')
-            else:
-                messages.warning(request,'Login information incorrect')
-                return redirect('register')
-    else:
-        form = AuthenticationForm()
-        return render(request, 'register.html', {'form':form, 'type':'Login'})
+# def user_login(request):
+#     if request.method == 'POST':
+#         form = AuthenticationForm(request, request.POST)
+#         if form.is_valid():
+#             user_name = form.cleaned_data['username']
+#             user_pass = form.cleaned_data['password']
+#             user = authenticate(username=user_name, password=user_pass)
+#             if user is not None:
+#                 messages.success(request,'Logged in Successfully')
+#                 login(request, user)
+#                 return redirect('profile')
+#             else:
+#                 messages.warning(request,'Login information incorrect')
+#                 return redirect('register')
+#     else:
+#         form = AuthenticationForm()
+#         return render(request, 'register.html', {'form':form, 'type':'Login'})
   
-@login_required      
+class UserLoginView(LoginView):
+    template_name = 'register.html'
+    
+    def get_success_url(self):
+        return reverse_lazy('profile')  
+
+    def form_valid(self,form):
+        messages.success(self.request, 'Logged in Succesful')
+        return super().form_valid(form)
+    
+    def form_invalid(self,form):
+        messages.success(self.request, 'Logged in information incorrect')
+        return super().form_invalid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['type'] = 'Login'
+        return context
+    
+    
+        
+@login_required         
 def profile(request):
     data = Post.objects.filter(author = request.user)
     return render(request, 'profile.html',{'data':data})
